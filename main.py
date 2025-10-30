@@ -5,6 +5,8 @@ from sitemapping import site_mapping
 from credentials import USER, PASSWORD, ACCOUNT, WAREHOUSE, DATABASE, SCHEMA
 import snowflake.connector
 
+#-- Start timer
+start = time.time()
 
 print("Starting Snowflake connection...")
 
@@ -31,9 +33,11 @@ print("Running query...")
 
 #-- Runs query for each site and stores results in all_data dict
 for siteFull, siteShort in site_mapping.items():
+
     print(f"Running query for {siteShort} ({siteFull})...")
     cur = conn.cursor()
     try:
+
         sql = complianceQuery(siteShort, siteFull, timeDays)
         cur.execute(sql)
 
@@ -42,17 +46,27 @@ for siteFull, siteShort in site_mapping.items():
 
         print(f" Done: {siteShort} ({len(df)} rows)")
     except Exception as e:
+
         print(f" Error for {siteShort}: {e}")
     finally:
+
         cur.close()
 
 conn.close()
+
 print("All queries done. Saving to Excel...")
 
+#-- Save all data to a single Excel file with multiple sheets
 with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
+
     for siteShort, df in all_data.items():
-        # Max worksheet name is 31 chars in Excel
+
         sheet_name = siteShort[:31]
         df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-print(f"✅ All site data saved to {excel_file}")
+print(f" All site data saved to {excel_file}")
+
+#-- End timer
+end = time.time()
+elapsed = end - start
+print(f"Script completed in {elapsed:.2f} seconds.")
