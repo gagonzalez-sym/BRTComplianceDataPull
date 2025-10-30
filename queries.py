@@ -1,5 +1,89 @@
+"""
+Function responsible for query checking reinduction success based on parameters
+"""
+def reinductQuery(siteShort: str, siteFull: str, timeDays: int) -> str:
+    query = f"""
+    SELECT
+        BOTNUMBER,
+        '{siteShort}' AS SITE_ID,  
+        DATE_TRUNC('week', TIMESTAMP) AS week_start,
+        SUM(CASE WHEN ACTION = 'Added' THEN 1 ELSE 0 END) AS inductions_per_week,
+        SUM(CASE WHEN ACTION = 'Removed' THEN 1 ELSE 0 END) AS removals_per_week,
+        MIN(CASE WHEN ACTION = 'Added' THEN TIMESTAMP END) AS first_induction_time,
+        MAX(CASE WHEN ACTION = 'Removed' THEN TIMESTAMP END) AS last_removal_time,
+        CASE 
+            WHEN MAX(CASE WHEN ACTION = 'Removed' THEN TIMESTAMP END) IS NOT NULL
+                 AND MIN(CASE WHEN ACTION = 'Added' THEN TIMESTAMP END) IS NOT NULL
+                 AND DATE_TRUNC('week', MAX(CASE WHEN ACTION = 'Removed' THEN TIMESTAMP END))
+                     = DATE_TRUNC('week', MIN(CASE WHEN ACTION = 'Added' THEN TIMESTAMP END))
+                 AND MAX(CASE WHEN ACTION = 'Removed' THEN TIMESTAMP END) > MIN(CASE WHEN ACTION = 'Added' THEN TIMESTAMP END)
+            THEN 'Fail'
+            ELSE 'Pass'
+        END AS pass_fail
+    FROM {siteShort}_FIVETRAN_DB.VIEW_SCHEMA.BOTSINDUCTEDANDREMOVED
+    WHERE TIMESTAMP >= CURRENT_DATE - INTERVAL '{timeDays} DAY'
+      AND TIMESTAMP < CURRENT_DATE + INTERVAL '1 DAY'
+    GROUP BY 
+        BOTNUMBER,
+        DATE_TRUNC('week', TIMESTAMP)
+    ORDER BY week_start DESC, BOTNUMBER;
+    """
+    return query
+
+"""
+Function to generate dwell time query for a given site and time period
+"""
+def dwellTimeQuery(environment: str, start_date: str, end_date: str) -> str:
+    query = f"""
+WITH daily_snapshot AS (
+  SELECT
+    environment,
+    DATE_TRUNC('DAY', timestamp) AS event_date,
+    bot_id,
+    MIN(timestamp) AS snapshot_time,
+    MAX(bot_location_changed) AS entry_time
+  FROM
+    VIEW_DB.TABLEAU_VIEW.CC_BOT_HEALTH_EVENT_RAW
+  WHERE
+    health_state != 'Unknown'
+    AND environment = '{environment}'
+    AND EXTRACT(HOUR FROM timestamp) = 23
+    AND EXTRACT(MINUTE FROM timestamp) BETWEEN 5 AND 55
+  GROUP BY
+    environment, bot_id, DATE_TRUNC('DAY', timestamp)
+),
+bot_dwell_times AS (
+  SELECT
+    environment,
+    event_date,
+    bot_id,
+    DATEDIFF('day', entry_time, snapshot_time) AS dwell_days
+  FROM
+    daily_snapshot
+  WHERE
+    entry_time <= snapshot_time
+)
+SELECT
+  environment,
+  event_date,
+  COUNT(DISTINCT bot_id) AS unique_bot_count,
+  AVG(dwell_days) AS avg_dwell_days
+FROM
+  bot_dwell_times
+WHERE event_date >= '{start_date}'
+  AND event_date <= '{end_date}'
+GROUP BY
+  environment, event_date
+ORDER BY
+  event_date DESC;
+"""
+    return query
 
 
+
+"""
+    Function to generate compliance query for a given site and time period
+"""
 def complianceQuery(siteShort: str, siteFull: str, timeDays: int) -> str:
     query = f"""
 WITH start_date AS (
