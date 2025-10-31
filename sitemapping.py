@@ -1,27 +1,30 @@
 # SITE MAPPING
 site_mapping = {
-  "walmart-az-buckeye-site1": "BCK",
-  "walmart-fl-brooksville-site25": "BRK", 
-  "walmart-ga-douglas-site1": "DOUG",
-  "walmart-ms-brookhaven-site1": "BRH",
-  "walmart-oh-grovecity-site1": "GRC",
-  "walmart-or-hermiston-site1": "HRM",
-  "walmart-tn-midway-site1": "MID",
-  "walmart-tx-newbraunfels-site1": "NBF",
-  "walmart-tx-palestine-site1": "PAL",
-  "walmart-wi-menomonie-site1": "MNM",
-  "walmart-ny-marcy-site1": "MRC",
-  "walmart-nh-raymond-site1": "RYM",
-  "walmart-nc-hopemills-site1": "HPM",
-  "walmart-ks-ottawa-site1": "OTW",
-  "walmart-pa-woodland-site1": "WDL",
-  "walmart-al-cullman-site1": "CLM",
-  "walmart-in-seymour-site1": "SYM",
-  "walmart-tx-plainview-site1": "PLV",
-  "walmart-ar-searcy-site1": "SRC",
-  "walmart-va-sutherland-site1": "LVL",
-  "walmart-ca-redbluff-site1": "RBL"
-} 
+    "walmart-az-buckeye-site1": "BCK",
+    "walmart-ms-brookhaven-site1": "BRH",
+    "walmart-fl-brooksville-site25": "BRK", 
+    "walmart-al-cullman-site1": "CLM",
+    "walmart-ga-douglas-site1": "DOUG",
+    "walmart-oh-grovecity-site1": "GRC",
+    "walmart-nc-hopemills-site1": "HPM",
+    "walmart-or-hermiston-site1": "HRM",
+    "walmart-co-loveland-site1": "LVL",
+    "walmart-tn-midway-site1": "MID",
+    "walmart-wi-menomonie-site1": "MNM",
+    "walmart-ny-marcy-site1": "MRC",
+    "walmart-tx-newbraunfels-site1": "NBF",
+    "walmart-ks-ottawa-site1": "OTW",
+    "walmart-tx-plainview-site1": "PLV",
+    "walmart-ca-porterville-site1": "PRT",
+    "walmart-tx-palestine-site1": "PAL",
+    "walmart-pa-woodland-site1": "WDL",
+    "walmart-ca-redbluff-site1": "RBL",
+    "walmart-nh-raymond-site1": "RYM",
+    "walmart-ar-searcy-site1": "SRC",
+    "walmart-va-sutherland-site1": "STL",
+    "walmart-in-seymour-site1": "SYM"
+}
+
 
 # SITE TIMEZONE MAPPING
 site_timezone_mapping = {
