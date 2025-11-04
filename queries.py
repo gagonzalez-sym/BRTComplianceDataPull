@@ -31,9 +31,9 @@ def reinductQuery(siteShort: str, siteFull: str, timeDays: int) -> str:
     return query
 
 """
-Function to generate dwell time query for a given site and time period
+Function to generate dwell time query for a given time window 
 """
-def dwellTimeQuery(environment: str, start_date: str, end_date: str) -> str:
+def dwellTimeQuery(days: int) -> str:
     query = f"""
 WITH daily_snapshot AS (
   SELECT
@@ -46,7 +46,6 @@ WITH daily_snapshot AS (
     VIEW_DB.TABLEAU_VIEW.CC_BOT_HEALTH_EVENT_RAW
   WHERE
     health_state != 'Unknown'
-    AND environment = '{environment}'
     AND EXTRACT(HOUR FROM timestamp) = 23
     AND EXTRACT(MINUTE FROM timestamp) BETWEEN 5 AND 55
   GROUP BY
@@ -70,8 +69,8 @@ SELECT
   AVG(dwell_days) AS avg_dwell_days
 FROM
   bot_dwell_times
-WHERE event_date >= '{start_date}'
-  AND event_date <= '{end_date}'
+WHERE event_date >= CURRENT_DATE - INTERVAL '{days} DAY'
+  AND event_date <= CURRENT_DATE
 GROUP BY
   environment, event_date
 ORDER BY
